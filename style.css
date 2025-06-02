@@ -111,7 +111,14 @@ h1 {
   font-weight: 700;
   margin-top: 25px;
 }
-
+#mainContent {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  gap: 50px;
+  flex-wrap: wrap;
+  padding: 40px;
+}
 /* Yüksek Skor Listesi */
 #highScoresList {
   background: #ffffff;
@@ -126,11 +133,13 @@ h1 {
   font-weight: 600;
   font-size: 20px;
    /* Yeni eklenenler: */
-  position: relative;
-  top: 320px;        /* Üstten boşluk */
-  left: 200px;        /* Soldan boşluk */
-  text-align: left;
+ #highScoresList {
+  position: relative; /* absolute değil */
+  top: auto;
+  left: auto;
+  margin: 0;
 }
+  
 
 #highScoresList li {
   padding: 20px 0;
