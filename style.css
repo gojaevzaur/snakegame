@@ -126,7 +126,7 @@ h1 {
   font-weight: 600;
   font-size: 20px;
    /* Yeni eklenenler: */
-  position: absolute;
+  position: relative;
   top: 320px;        /* Üstten boşluk */
   left: 200px;        /* Soldan boşluk */
   text-align: left;
