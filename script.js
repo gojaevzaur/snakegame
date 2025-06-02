@@ -8,11 +8,17 @@ crashSound.preload = 'auto';
 
 let soundOn = true;
 
-document.getElementById('soundToggle').addEventListener('click', () => {
+const soundButton = document.getElementById('soundToggle');
+soundButton.classList.add('sound-on');
+
+soundButton.addEventListener('click', () => {
   soundOn = !soundOn;
-  const soundButton = document.getElementById('soundToggle');
   soundButton.textContent = soundOn ? 'Ses Açık' : 'Ses Kapalı';
   soundButton.setAttribute('aria-label', soundOn ? 'Ses açık' : 'Ses kapalı');
+  
+  // Toggle classes for color
+  soundButton.classList.toggle('sound-on', soundOn);
+  soundButton.classList.toggle('sound-off', !soundOn);
 });
 
 // CANVAS & OYUN DEĞİŞKENLERİ
@@ -32,6 +38,8 @@ const finalScoreSpan = document.getElementById('finalScore');
 const closeModalBtn = document.getElementById('closeModalBtn');
 const joystickContainer = document.getElementById('joystickContainer');
 const joystick = document.getElementById('joystick');
+const playAgainBtn = document.getElementById('playAgainBtn');
+const speedBoostBtn = document.getElementById('speedBoostBtn');
 
 const gridSize = 20;
 const tileCount = canvas.width / gridSize;
@@ -42,7 +50,7 @@ let food = { x: 0, y: 0 };
 let score = 0;
 let gameStarted = false;
 let lastDirectionChange = 0;
-const directionChangeCooldown = 100; // 100ms cooldown
+const directionChangeCooldown = 100;
 
 const skins = {
   green: '#00ff99',
@@ -51,7 +59,14 @@ const skins = {
   neon: '#00ffff'
 };
 
-let animationFrameId = null; // requestAnimationFrame id
+let animationFrameId = null;
+let speedBoostActive = false;
+const speedBoostDuration = 5000; // 5 saniye
+const originalSpeeds = {
+  easy: 200,
+  medium: 150,
+  hard: 100
+};
 
 // Firebase import ve setup
 import {
@@ -91,6 +106,8 @@ function startGame() {
   score = 0;
   speed = parseInt(difficultySelector.value);
   scoreDisplay.textContent = score;
+  speedBoostActive = false;
+  speedBoostBtn.disabled = false;
 
   snake = [
     { x: 10, y: 10 },
@@ -102,7 +119,7 @@ function startGame() {
   lastDirectionChange = performance.now();
   
   placeFood();
-  gameOverModal.classList.remove('active'); // Modal'ı kapat
+  gameOverModal.classList.remove('active');
 
   if (animationFrameId) {
     cancelAnimationFrame(animationFrameId);
@@ -115,6 +132,8 @@ function startGame() {
 // Oyun bitirme fonksiyonu
 function endGame() {
   gameStarted = false;
+  speedBoostActive = false;
+  speedBoostBtn.disabled = false;
 
   if (soundOn) {
     crashSound.currentTime = 0;
@@ -122,7 +141,7 @@ function endGame() {
   }
 
   finalScoreSpan.textContent = score;
-  gameOverModal.classList.add('active'); // Modal'ı göster
+  gameOverModal.classList.add('active');
 
   if (animationFrameId) {
     cancelAnimationFrame(animationFrameId);
@@ -133,11 +152,10 @@ function endGame() {
   loadHighScores();
 }
 
-// Yiyecek yerleştirme (optimize edilmiş versiyon)
+// Yiyecek yerleştirme
 function placeFood() {
   const emptyCells = [];
   
-  // Tüm boş hücreleri bul
   for (let x = 0; x < tileCount; x++) {
     for (let y = 0; y < tileCount; y++) {
       if (!snake.some(segment => segment.x === x && segment.y === y)) {
@@ -146,19 +164,17 @@ function placeFood() {
     }
   }
   
-  // Rastgele boş hücre seç
   if (emptyCells.length > 0) {
     const randomIndex = Math.floor(Math.random() * emptyCells.length);
     food = emptyCells[randomIndex];
   } else {
-    // Boş hücre yoksa (tüm alan doluysa) merkeze yerleştir
     food = { x: Math.floor(tileCount / 2), y: Math.floor(tileCount / 2) };
   }
 }
 
 // Oyun güncelleme ve çizim
 let lastFrameTime = 0;
-let speed = 150; // default orta zorluk
+let speed = 150;
 
 function gameLoop(currentTime) {
   if (!gameStarted) return;
@@ -173,22 +189,18 @@ function gameLoop(currentTime) {
 }
 
 function update() {
-  // Yeni kafayı oluştur
   const head = { x: snake[0].x + direction.x, y: snake[0].y + direction.y };
 
-  // Duvarlara çarpma kontrolü
   if (head.x < 0 || head.x >= tileCount || head.y < 0 || head.y >= tileCount) {
     return endGame();
   }
 
-  // Kendi üzerine çarpma
   if (snake.some((segment, index) => index > 0 && segment.x === head.x && segment.y === head.y)) {
     return endGame();
   }
 
   snake.unshift(head);
 
-  // Yemek yedi mi kontrolü
   if (head.x === food.x && head.y === food.y) {
     if (soundOn) {
       eatSound.currentTime = 0;
@@ -203,11 +215,9 @@ function update() {
 }
 
 function draw() {
-  // Arka plan
   ctx.fillStyle = '#111';
   ctx.fillRect(0, 0, canvas.width, canvas.height);
   
-  // Izgara çizgileri
   ctx.strokeStyle = '#222';
   ctx.lineWidth = 0.5;
   for (let i = 0; i < tileCount; i++) {
@@ -222,7 +232,6 @@ function draw() {
     ctx.stroke();
   }
 
-  // Yemek çiz
   ctx.fillStyle = '#ff5500';
   ctx.beginPath();
   ctx.arc(
@@ -234,10 +243,8 @@ function draw() {
   );
   ctx.fill();
 
-  // Yılan çizimi
   const skinColor = skins[skinSelector.value] || '#00ff99';
   snake.forEach((segment, i) => {
-    // Kafa için özel çizim
     if (i === 0) {
       ctx.fillStyle = skinColor;
       ctx.beginPath();
@@ -250,30 +257,28 @@ function draw() {
       );
       ctx.fill();
       
-      // Gözler
       ctx.fillStyle = 'black';
       const eyeSize = gridSize / 8;
       const eyeOffset = gridSize / 4;
       
-      // Göz pozisyonları yöne göre ayarla
       let leftEyeX, leftEyeY, rightEyeX, rightEyeY;
       
-      if (direction.x === 1) { // Sağa
+      if (direction.x === 1) {
         leftEyeX = segment.x * gridSize + gridSize - eyeOffset;
         leftEyeY = segment.y * gridSize + eyeOffset;
         rightEyeX = segment.x * gridSize + gridSize - eyeOffset;
         rightEyeY = segment.y * gridSize + gridSize - eyeOffset;
-      } else if (direction.x === -1) { // Sola
+      } else if (direction.x === -1) {
         leftEyeX = segment.x * gridSize + eyeOffset;
         leftEyeY = segment.y * gridSize + eyeOffset;
         rightEyeX = segment.x * gridSize + eyeOffset;
         rightEyeY = segment.y * gridSize + gridSize - eyeOffset;
-      } else if (direction.y === -1) { // Yukarı
+      } else if (direction.y === -1) {
         leftEyeX = segment.x * gridSize + eyeOffset;
         leftEyeY = segment.y * gridSize + eyeOffset;
         rightEyeX = segment.x * gridSize + gridSize - eyeOffset;
         rightEyeY = segment.y * gridSize + eyeOffset;
-      } else { // Aşağı
+      } else {
         leftEyeX = segment.x * gridSize + eyeOffset;
         leftEyeY = segment.y * gridSize + gridSize - eyeOffset;
         rightEyeX = segment.x * gridSize + gridSize - eyeOffset;
@@ -291,7 +296,6 @@ function draw() {
       return;
     }
     
-    // Vücut parçaları
     ctx.fillStyle = skinColor;
     ctx.beginPath();
     ctx.arc(
@@ -303,7 +307,6 @@ function draw() {
     );
     ctx.fill();
     
-    // Vücut deseni
     ctx.strokeStyle = 'rgba(0, 0, 0, 0.3)';
     ctx.lineWidth = 1;
     ctx.beginPath();
@@ -322,7 +325,6 @@ function draw() {
 function handleKeyDown(e) {
   if (!gameStarted) return;
   
-  // Yön değiştirme cooldown kontrolü
   const now = performance.now();
   if (now - lastDirectionChange < directionChangeCooldown) return;
   
@@ -365,6 +367,12 @@ closeModalBtn.addEventListener('click', () => {
   gameOverModal.classList.remove('active');
 });
 
+// Tekrar Oyna
+playAgainBtn.addEventListener('click', () => {
+  gameOverModal.classList.remove('active');
+  startGame();
+});
+
 // Start butonu
 startBtn.addEventListener('click', startGame);
 
@@ -375,9 +383,26 @@ difficultySelector.addEventListener('change', () => {
   }
 });
 
+// Hız Artır Butonu
+speedBoostBtn.addEventListener('click', () => {
+  if (!gameStarted || speedBoostActive) return;
+  
+  speedBoostActive = true;
+  speedBoostBtn.disabled = true;
+  
+  const originalSpeed = speed;
+  speed = Math.max(30, speed - 40); // Hızı artır
+  
+  setTimeout(() => {
+    speed = originalSpeed;
+    speedBoostActive = false;
+    speedBoostBtn.disabled = false;
+  }, speedBoostDuration);
+});
+
 // Yüksek skorları kaydet ve getir
 function saveScore(username, score) {
-  if (!username || !score) return;
+  if (!username || score == null) return;
   const scoresRef = ref(database, 'scores');
   push(scoresRef, {
     username: username,
@@ -397,24 +422,39 @@ function loadHighScores() {
 
     scores.sort((a, b) => b.score - a.score);
 
+    const emojis = ["👑 ", "🥈 ", "🥉 "];
+
     scores.forEach((item, index) => {
       const li = document.createElement('li');
-      
+
+      const emojiSpan = document.createElement('span');
+      emojiSpan.className = 'emoji';
+      emojiSpan.textContent = emojis[index] || "";
+
       const rankSpan = document.createElement('span');
       rankSpan.textContent = `${index + 1}. `;
       rankSpan.className = 'rank';
-      
+
       const usernameSpan = document.createElement('span');
       usernameSpan.textContent = item.username;
       usernameSpan.className = 'username';
-      
+
+          // Ok simgesi
+      const arrowSpan = document.createElement('span');
+      arrowSpan.className = 'arrow';
+      arrowSpan.textContent = '  →   ';
+
       const scoreSpan = document.createElement('span');
       scoreSpan.textContent = item.score;
       scoreSpan.className = 'score-value';
-      
+
+      li.appendChild(emojiSpan);
       li.appendChild(rankSpan);
       li.appendChild(usernameSpan);
+      li.appendChild(arrowSpan);
+
       li.appendChild(scoreSpan);
+
       highScoresList.appendChild(li);
     });
   });
@@ -435,7 +475,7 @@ if (isMobile()) {
 // Basit joystick hareketi
 let joystickActive = false;
 let startX, startY;
-const sensitivity = 30; // Pixel eşiği
+const sensitivity = 30;
 
 joystickContainer.addEventListener('touchstart', e => {
   if (!gameStarted) return;
@@ -454,7 +494,6 @@ joystickContainer.addEventListener('touchmove', e => {
   const dx = touch.clientX - startX;
   const dy = touch.clientY - startY;
   
-  // Joystick görsel hareketi (sınırlı)
   const maxDistance = 40;
   const distance = Math.min(maxDistance, Math.sqrt(dx * dx + dy * dy));
   const angle = Math.atan2(dy, dx);
@@ -464,11 +503,9 @@ joystickContainer.addEventListener('touchmove', e => {
   
   joystick.style.transform = `translate(${joyX}px, ${joyY}px)`;
   
-  // Yön değiştirme cooldown kontrolü
   const now = performance.now();
   if (now - lastDirectionChange < directionChangeCooldown) return;
   
-  // Yön belirleme
   if (Math.abs(dx) > sensitivity || Math.abs(dy) > sensitivity) {
     if (Math.abs(dx) > Math.abs(dy)) {
       if (dx > 0 && direction.x !== -1) {
