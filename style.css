@@ -128,7 +128,7 @@ h1 {
    /* Yeni eklenenler: */
   position: absolute;
   top: 320px;        /* Üstten boşluk */
-  left: 450px;        /* Soldan boşluk */
+  left: 300px;        /* Soldan boşluk */
   text-align: left;
 }
 
