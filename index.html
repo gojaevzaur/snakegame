@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Snake Game By Sedrik</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <h1>Snake Game By Sedrik</h1>
+
+  <!-- Kontrol Paneli -->
+  <div class="controls">
+    <!-- Ses Butonu -->
+    <button id="soundToggle" data-control aria-live="polite">Ses Açık</button>
+
+    <!-- Skin Seçici -->
+    <select id="skinSelector" data-control>
+      <option value="green" selected>Yeşil</option>
+      <option value="blue">Mavi</option>
+      <option value="red">Kırmızı</option>
+      <option value="neon">Neon</option>
+    </select>
+
+    <!-- Zorluk Seçici -->
+    <select id="difficultySelector" data-control>
+      <option value="200">Kolay</option>
+      <option value="150" selected>Orta</option>
+      <option value="100">Zor</option>
+    </select>
+
+    <!-- Kullanıcı Adı -->
+    <input type="text" id="username" data-control placeholder="Kullanıcı Adınız" maxlength="15" />
+
+    <!-- Başlat Butonu -->
+    <button id="startBtn" data-control>Başlat</button>
+    
+    <!-- Hız Artır Butonu -->
+    <button id="speedBoostBtn" data-control>Hız Artır</button>
+  </div>
+
+  <!-- Skor -->
+  <div id="scoreboard">
+    Skor: <span id="score">0</span>
+  </div>
+
+  <!-- Canvas -->
+  <canvas id="gameCanvas"></canvas>
+
+  <!-- Yüksek Skor Listesi -->
+  <ul id="highScoresList"></ul>
+
+  <!-- Joystick Mobil için -->
+  <div id="joystickContainer">
+    <div id="joystick"></div>
+  </div>
+
+  <!-- Oyun Bitti Modal -->
+  <div id="gameOverModal" class="modal">
+    <div class="modal-content">
+      <p>Oyun Bitti! Skorunuz: <span id="finalScore">0</span></p>
+      <div class="modal-buttons">
+        <button id="closeModalBtn">Kapat</button>
+        <button id="playAgainBtn">Tekrar Oyna</button>
+      </div>
+    </div>
+  </div>
+
+  <script type="module" src="script.js"></script>
+</body>
+</html>

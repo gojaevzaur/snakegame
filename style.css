@@ -1,0 +1,298 @@
+/* Genel Ayarlar */
+body {
+  background: #f0f8ff;
+  color: #222222;
+  font-family: 'Poppins', sans-serif;
+  margin: 0;
+  padding: 0;
+  text-align: center;
+  user-select: none;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+h1 {
+  color: #004080;
+  font-weight: 700;
+  font-size: 3rem;
+  margin: 30px 0 20px;
+  text-shadow: 1px 1px 2px #cfd8dc;
+}
+
+/* Kontrol Paneli */
+.controls {
+  background: #ffffff;
+  border: 2px solid #007acc;
+  border-radius: 15px;
+  padding: 20px 30px;
+  max-width: 700px;
+  margin: 0 auto 30px;
+  box-shadow: 0 4px 15px rgba(0, 122, 204, 0.25);
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 20px;
+}
+
+/* Buton ve Seçiciler */
+[data-control] {
+  background: #007acc;
+  border: none;
+  border-radius: 12px;
+  padding: 15px 25px;
+  color: #ffffff;
+  font-weight: 700;
+  font-size: 1.2rem;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  min-width: 150px;
+}
+
+[data-control]:hover {
+  background-color: #005fa3;
+}
+
+[data-control]:active {
+  background-color: #004080;
+}
+
+/* Ses Butonu Özel Stiller */
+#soundToggle.sound-on {
+  background: linear-gradient(145deg, #4CAF50, #2E7D32);
+}
+
+#soundToggle.sound-off {
+  background: linear-gradient(145deg, #f44336, #c62828);
+}
+
+/* Hız Artır Butonu */
+#speedBoostBtn {
+  background: linear-gradient(145deg, #FF9800, #F57C00);
+}
+
+#speedBoostBtn:disabled {
+  background: #9e9e9e;
+  cursor: not-allowed;
+}
+
+/* Kullanıcı Adı Input */
+#username {
+  border: 2px solid #007acc;
+  border-radius: 12px;
+  padding: 12px 18px;
+  font-size: 1.1rem;
+  color: #222222;
+  background: #e6f0ff;
+  width: 180px;
+  text-align: center;
+  transition: border-color 0.3s;
+}
+
+#username:focus {
+  border-color: #005fa3;
+  outline: none;
+}
+
+/* Oyun Canvas */
+#gameCanvas {
+  background: #d9eaff;
+  border: 3px solid #007acc;
+  border-radius: 18px;
+  display: block;
+  margin: 30px auto;
+  max-width: 95%;
+  box-shadow: 0 0 20px rgba(0, 122, 204, 0.4);
+}
+
+/* Skor Panosu */
+#scoreboard {
+  color: #004080;
+  font-size: 1.8rem;
+  font-weight: 700;
+  margin-top: 25px;
+}
+
+/* Yüksek Skor Listesi */
+#highScoresList {
+  background: #ffffff;
+  max-width: 500px;
+  margin: 40px auto 20px;
+  padding: 30px 30px;
+  border-radius: 50px;
+  box-shadow: 0 10px 20px rgba(0, 122, 204, 0.25);
+  list-style: none;
+  text-align: center;
+  color: #004080;
+  font-weight: 600;
+  font-size: 20px;
+   /* Yeni eklenenler: */
+  position: absolute;
+  top: 320px;        /* Üstten boşluk */
+  left: 450px;        /* Soldan boşluk */
+  text-align: left;
+}
+
+#highScoresList li {
+  padding: 20px 0;
+  border-bottom: 10px solid #c0d7ff;
+}
+
+#highScoresList li:last-child {
+  border-bottom: none;
+}
+
+/* Joystick */
+#joystickContainer {
+  display: none;
+  position: fixed;
+  bottom: 40px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 140px;
+  height: 140px;
+  background: rgba(0, 122, 204, 0.15);
+  border-radius: 50%;
+  touch-action: none;
+  user-select: none;
+  z-index: 10;
+  border: 2px solid #007acc;
+  box-shadow: 0 0 25px rgba(0, 122, 204, 0.4);
+}
+
+#joystick {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 65px;
+  height: 65px;
+  background: radial-gradient(circle, #007acc 0%, #005fa3 100%);
+  border-radius: 50%;
+  box-shadow: 0 0 20px #007acc;
+  transition: transform 0.1s ease;
+}
+
+/* Modal */
+#gameOverModal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(240, 248, 255, 0.95);
+  color: #004080;
+  display: none;
+  justify-content: center;
+  align-items: center;
+  font-family: monospace;
+  font-size: 1.9rem;
+  z-index: 1000;
+  backdrop-filter: blur(5px);
+}
+
+#gameOverModal.active {
+  display: flex;
+}
+
+.modal-content {
+  background: linear-gradient(150deg, #b0c4de, #7a9acc);
+  padding: 40px;
+  border-radius: 20px;
+  border: 3px solid #007acc;
+  text-align: center;
+  max-width: 85%;
+  box-shadow: 0 0 50px rgba(0, 122, 204, 0.7);
+  animation: pulse 2s infinite alternate;
+}
+
+@keyframes pulse {
+  0% { box-shadow: 0 0 50px rgba(0, 122, 204, 0.7); }
+  100% { box-shadow: 0 0 70px rgba(0, 160, 255, 0.9); }
+}
+
+#gameOverModal p {
+  margin-bottom: 35px;
+  text-shadow: 0 0 15px #005fa3;
+  font-size: 2.2rem;
+}
+
+.modal-buttons {
+  display: flex;
+  gap: 20px;
+  margin-top: 20px;
+  justify-content: center;
+}
+
+.modal-buttons button {
+  padding: 15px 35px;
+  font-size: 1.3rem;
+  border-radius: 12px;
+  border: none;
+  color: #e6f0ff;
+  cursor: pointer;
+  font-weight: 700;
+  transition: all 0.3s;
+  text-shadow: 0 1px 1px rgba(0,0,0,0.3);
+  box-shadow: 0 4px 15px rgba(0, 122, 204, 0.4);
+}
+
+#closeModalBtn {
+  background: linear-gradient(145deg, #007acc, #005fa3);
+}
+
+#playAgainBtn {
+  background: linear-gradient(145deg, #4CAF50, #2E7D32);
+}
+
+.modal-buttons button:hover {
+  transform: scale(1.08);
+  box-shadow: 0 6px 20px rgba(0, 160, 255, 0.6);
+}
+
+.modal-buttons button:active {
+  transform: scale(0.98);
+}
+
+/* Responsive Tasarım */
+@media (max-width: 768px) {
+  .controls {
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+  }
+  
+  [data-control] {
+    width: 85%;
+    max-width: 320px;
+    font-size: 1.05rem;
+    padding: 14px;
+  }
+  
+  #gameCanvas {
+    width: 96%;
+  }
+  
+  h1 {
+    font-size: 2.2rem;
+    padding: 0 15px;
+  }
+  
+  #joystickContainer {
+    bottom: 30px;
+    width: 130px;
+    height: 130px;
+  }
+
+  .modal-content {
+    padding: 30px 20px;
+  }
+
+  #gameOverModal p {
+    font-size: 1.8rem;
+  }
+  
+  .modal-buttons {
+    flex-direction: column;
+    gap: 10px;
+  }
+}
